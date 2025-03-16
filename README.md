@@ -27,7 +27,7 @@ http://example.com/autoviewer.html?url={文件链接}
 将 `{文件链接}` 替换为实际文件的 URL，即可在浏览器中打开进行预览。
 
 ### 关于 PDF.js 的使用
-这里引入 PDF.js 的方式可能不太优雅，直接把 `build` 和 `web` 目录全部复制过来了。同时可能缺少对音视频格式和其他 Office 格式的预览，但问题不大，以后再改。
+这里引入 PDF.js 的方式可能不太优雅，直接把 `build` 和 `web` 目录全部复制过来了。同时可能缺少对音视频格式和其他 Office 格式的预览，但问题不大。
 
 **跨域限制与调整**
 由于 PDF.js 具有跨域限制，如果预览器和 PDF 文件的来源不同，可能会遇到加载失败的问题。这是由于 `/pdfjs/web/viewer.mjs` 中的 `validateFileURL` 代码所致：
@@ -186,5 +186,23 @@ var validateFileURL = function (file) {
 </html>
 ```
 
+
 ## 许可证
 本项目基于 [MIT 许可证](LICENSE) 进行开源。
+
+
+## 第三方库的使用
+
+本项目使用以下库和资源来实现文件预览功能：  
+
+- **[marked](https://github.com/markedjs/marked)**：用于将 Markdown 文件渲染成 HTML。
+
+- **[mammoth](https://github.com/mwilliamson/mammoth.js)**：用于将 DOCX 文件转换为 HTML。
+
+- **[highlight.js](https://github.com/highlightjs/highlight.js)**：用于代码高亮显示。
+- 
+- **[highlightjs-line-numbers.js](https://github.com/wcoder/highlightjs-line-numbers.js)**：用于为代码块添加行号。
+
+- **[pdf.js](https://github.com/mozilla/pdf.js)**：用于预览 PDF 文件。
+
+本项目使用 subframe7536 提供的字体 **[Maple Mono NF-CN](https://github.com/subframe7536/maple-font)** 
