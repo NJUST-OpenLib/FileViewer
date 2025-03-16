@@ -10,7 +10,7 @@
 
 - 代码文件：支持 .css、.js、.m、.html、.c、.cpp 等所有 highlight.js 可解析的文本格式（不包括 .md）。
 - 文档文件：`.pdf`、`.docx`
-- Markdown 文件（`.md`）：可渲染为美观的 HTML 页面
+- Markdown 文件（`.md`）：可渲染为美观的 HTML 页面（其实一点也不美观，但最起码比Raw markdown 看起来顺眼多了）
 
 ## 功能特性
 - **多格式支持**：支持代码文件、PDF、DOCX 和 Markdown 等格式
