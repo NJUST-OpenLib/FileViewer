@@ -5,24 +5,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>文件预览</title>
-    <!-- 引入 marked 和 mammoth 库 -->
+
+    <!-- 引入外部库 -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.4.2/mammoth.browser.min.js"></script>
-
-    <!-- 使用 GitHub Dark 样式的 highlight.js CSS 和行号插件 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github-dark.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlightjs-line-numbers.js/2.8.0/highlightjs-line-numbers.min.js"></script>
-
-    <!-- 字体预连接 -->
-    <link rel="preconnect" href="https://static.zeoseven.com" crossorigin />
-    <link rel="stylesheet"
-        href="https://static.zeoseven.com/zsft/442/main/result.css"
-        onerror="this.href='https://static-host.zeoseven.com/zsft/442/main/result.css'"
-    />
+    <script
+        src="https://cdnjs.cloudflare.com/ajax/libs/highlightjs-line-numbers.js/2.8.0/highlightjs-line-numbers.min.js"></script>
 
     <style>
-        /* 全局样式，去除默认的外边距和内边距 */
+        /* 全局样式 */
         * {
             margin: 0;
             padding: 0;
@@ -33,7 +26,6 @@
             font-family: sans-serif;
             background-color: #f0f0f0;
             color: #333;
-            overflow: hidden;
             display: flex;
             flex-direction: column;
             height: 100vh;
@@ -49,13 +41,11 @@
             font-size: 14px;
         }
 
-        /* 文件名样式，保持加粗和正常颜色 */
         #topInfo div:first-child {
             font-weight: bold;
             color: #fff;
         }
 
-        /* 下面一行（包含描述和链接）样式，不明显突出 */
         #topInfo div:last-child {
             color: #aaa;
         }
@@ -69,23 +59,22 @@
             text-decoration: underline;
         }
 
-        /* 非 PDF 文件预览区域 */
+        /* PDF 预览区域 */
+        #pdfViewerContainer {
+            display: none;
+            flex: 1;
+            width: 100%;
+            border: none;
+        }
+
+        /* 文件内容区域 */
         .file-container {
             flex: 1;
             width: 100%;
             background: #fff;
             border: 1px solid #ddd;
             overflow-y: auto;
-            padding: 0;
-        }
-
-        /* 针对代码块等需要换行的情况 */
-        pre,
-        code {
-            white-space: pre-wrap;
-            overflow-wrap: break-word;
-            word-wrap: break-word;
-            font-family: "Maple Mono NF CN", "Consolas", "Courier New", monospace;
+            padding: 10px;
         }
 
         .error {
@@ -93,42 +82,15 @@
             font-weight: bold;
             text-align: center;
         }
-
-        /* PDF viewer 区域，初始隐藏 */
-        #pdfViewerContainer {
-            display: none;
-            flex: 1;
-            width: 100%;
-            border: none;
-        }
     </style>
 </head>
 
 <body>
-    <!-- 顶部信息区域 -->
     <div id="topInfo"></div>
-
-    <!-- PDF 预览区域 -->
     <iframe id="pdfViewerContainer"></iframe>
-
-    <!-- 非 PDF 文件预览区域 -->
     <div id="fileContainer" class="file-container">Loading...</div>
 
     <script>
-        // 用于转义 HTML 字符，防止代码显示问题
-        function escapeHtml(unsafe) {
-            return unsafe.replace(/[&<>"']/g, function (m) {
-                switch (m) {
-                    case '&': return '&amp;';
-                    case '<': return '&lt;';
-                    case '>': return '&gt;';
-                    case '"': return '&quot;';
-                    case "'": return '&#039;';
-                    default: return m;
-                }
-            });
-        }
-
         async function loadFile() {
             const urlParams = new URLSearchParams(window.location.search);
             const fileUrl = urlParams.get("url");
@@ -137,39 +99,41 @@
             const pdfViewerContainer = document.getElementById("pdfViewerContainer");
 
             if (!fileUrl) {
-                fileContainer.innerHTML = "<h2 class='error'>请提供文件URL!<br>Error: No file URL provided!</h2>";
+                fileContainer.innerHTML = "<h2 class='error'>请提供文件 URL!<br>Error: No file URL provided!</h2>";
                 return;
             }
 
-            // 提取文件名
             const fileName = decodeURIComponent(fileUrl.split('/').pop());
-
-            // 构建顶部信息 HTML
-            const infoHtml = `
+            topInfo.innerHTML = `
                 <div><b>${fileName}</b></div>
                 <div>文件预览服务，文件内容来自:<a href="${fileUrl}" target="_blank"> ${decodeURIComponent(fileUrl)}</a></div>
             `;
-            topInfo.innerHTML = infoHtml;
 
             try {
-                const response = await fetch(fileUrl);
-                if (!response.ok) throw new Error(`HTTP 状态：${response.status}`);
-                const contentType = response.headers.get("content-type");
+                // 先使用 HEAD 请求获取文件类型，避免下载整个文件
+                const headResponse = await fetch(fileUrl, { method: 'HEAD' });
+                if (!headResponse.ok) throw new Error(`HTTP 状态：${headResponse.status}`);
+                const contentType = headResponse.headers.get("content-type");
                 const fileExtension = fileUrl.split('.').pop().toLowerCase();
 
-                // PDF 文件处理
+                // 如果是 PDF，直接使用 iframe 预览，避免二次请求
                 if (contentType.includes("application/pdf") || fileExtension === "pdf") {
                     fileContainer.style.display = "none";
                     pdfViewerContainer.style.display = "block";
-                    pdfViewerContainer.src = `./pdfjs/web/viewer.html?file=${encodeURIComponent(fileUrl)}`;
+                    // 传递 extraParams 以启用流式加载
+                    const extraParams = '?file=' + encodeURIComponent(fileUrl) + '&disableStream=false&disableAutoFetch=false';
+                    pdfViewerContainer.src = `./pdfjs/web/viewer.html${extraParams}`;
+                    return;
                 }
-                // Markdown 处理
-                else if (contentType.includes("text/markdown") || fileExtension === "md") {
+
+                // 其他文件类型，正常下载并处理
+                const response = await fetch(fileUrl);
+                if (!response.ok) throw new Error(`HTTP 状态：${response.status}`);
+
+                if (contentType.includes("text/markdown") || fileExtension === "md") {
                     const text = await response.text();
                     fileContainer.innerHTML = marked.parse(text);
-                }
-                // DOCX 处理
-                else if (contentType.includes("application/vnd.openxmlformats-officedocument.wordprocessingml.document") || fileExtension === "docx") {
+                } else if (contentType.includes("application/vnd.openxmlformats-officedocument.wordprocessingml.document") || fileExtension === "docx") {
                     const blob = await response.blob();
                     const reader = new FileReader();
                     reader.onload = function () {
@@ -178,24 +142,29 @@
                         });
                     };
                     reader.readAsArrayBuffer(blob);
-                }
-                // 其他文件处理：尝试进行代码高亮并显示行号
-                else {
+                } else {
                     const text = await response.text();
-                    if (fileExtension!== "md") {
-                        fileContainer.innerHTML = `<pre><code class="hljs">${escapeHtml(text)}</code></pre>`;
-                        const codeBlock = fileContainer.querySelector('code');
-                        hljs.highlightElement(codeBlock);
-                        if (typeof hljs.initLineNumbersOnLoad === "function") {
-                            hljs.initLineNumbersOnLoad();
-                        }
-                    } else {
-                        fileContainer.innerHTML = `<pre>${escapeHtml(text)}</pre>`;
+                    fileContainer.innerHTML = `<pre><code class="hljs">${escapeHtml(text)}</code></pre>`;
+                    const codeBlock = fileContainer.querySelector('code');
+                    hljs.highlightElement(codeBlock);
+                    if (typeof hljs.initLineNumbersOnLoad === "function") {
+                        hljs.initLineNumbersOnLoad();
                     }
                 }
             } catch (error) {
                 fileContainer.innerHTML = `<h2 class='error'>Error: ${error.message}</h2>`;
             }
+        }
+
+        function escapeHtml(unsafe) {
+            return unsafe.replace(/[&<>"]+/g, function (m) {
+                return {
+                    '&': '&amp;',
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    '"': '&quot;'
+                }[m];
+            });
         }
 
         loadFile();
