@@ -1,6 +1,7 @@
 # FileViewer
 
-![GitHub](https://github.com/NJUST-OpenLib/FileViewer/)
+![GitHub License](https://img.shields.io/github/license/NJUST-OpenLib/FileViewer)
+
 
 ## 简介
 **FileViewer** 是一款自用的纯前端的文件预览工具，无需后端支持，即可在浏览器中直接预览多种常见文件类型。  
@@ -15,7 +16,6 @@
 - **多格式支持**：支持代码文件、PDF、DOCX 和 Markdown 等格式
 - **代码高亮**：使用 `highlight.js` 提供代码高亮，支持行号显示
 - **纯前端实现**：无需后端服务，直接在浏览器中打开链接即可使用
-- **文件下载**：可直接下载预览的文件
 
 ## 使用方法
 使用以下格式访问 FileViewer 进行文件预览：
@@ -27,7 +27,7 @@ http://example.com/autoviewer.html?url={文件链接}
 将 `{文件链接}` 替换为实际文件的 URL，即可在浏览器中打开进行预览。
 
 ### 关于 PDF.js 的使用
-这里引入 PDF.js 的方式可能不太优雅，直接把 `build` 和 `web` 目录全部复制过来了。不过能用就行。同时可能缺少对音视频格式和其他 Office 格式的预览，但问题不大。
+这里引入 PDF.js 的方式可能不太优雅，直接把 `build` 和 `web` 目录全部复制过来了。同时可能缺少对音视频格式和其他 Office 格式的预览，但问题不大，以后再改。
 
 **跨域限制与调整**
 由于 PDF.js 具有跨域限制，如果预览器和 PDF 文件的来源不同，可能会遇到加载失败的问题。这是由于 `/pdfjs/web/viewer.mjs` 中的 `validateFileURL` 代码所致：
