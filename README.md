@@ -2,7 +2,7 @@
 
 ![GitHub License](https://img.shields.io/github/license/NJUST-OpenLib/FileViewer)
 
-
+[View in Github](https://github.com/NJUST-OpenLib/FileViewer/)
 ## 简介
 **FileViewer** 是一款自用的纯前端的文件预览工具，无需后端支持，即可在浏览器中直接预览多种常见文件类型。  
 该工具专为 [NJUST-docs](https://github.com/NJUST-OpenLib/NJUST-docs) 项目开发，可能并不适用于所有使用场景，且代码极其混乱，但仍然开放源码供参考。  
