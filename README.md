@@ -2,7 +2,7 @@
 
 ![GitHub License](https://img.shields.io/github/license/NJUST-OpenLib/FileViewer)
 
-
+[View in Github](https://github.com/NJUST-OpenLib/FileViewer/)
 ## 简介
 **FileViewer** 是一款自用的纯前端的文件预览工具，无需后端支持，即可在浏览器中直接预览多种常见文件类型。  
 该工具专为 [NJUST-docs](https://github.com/NJUST-OpenLib/NJUST-docs) 项目开发，可能并不适用于所有使用场景，且代码极其混乱，但仍然开放源码供参考。  
@@ -10,7 +10,7 @@
 
 - 代码文件：支持 .css、.js、.m、.html、.c、.cpp 等所有 highlight.js 可解析的文本格式（不包括 .md）。
 - 文档文件：`.pdf`、`.docx`
-- Markdown 文件（`.md`）：可渲染为美观的 HTML 页面
+- Markdown 文件（`.md`）：可渲染为美观的 HTML 页面（其实一点也不美观，但最起码比Raw markdown 看起来顺眼多了）
 
 ## 功能特性
 - **多格式支持**：支持代码文件、PDF、DOCX 和 Markdown 等格式
