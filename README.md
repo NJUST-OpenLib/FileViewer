@@ -206,3 +206,23 @@ var validateFileURL = function (file) {
 - **[pdf.js](https://github.com/mozilla/pdf.js)**：用于预览 PDF 文件。
 
 本项目使用 subframe7536 提供的字体 **[Maple Mono NF-CN](https://github.com/subframe7536/maple-font)** 
+可以优化成这样，让说明更加清晰且完整：  
+
+---  
+
+**注意：** 本项目在预览 PDF 文件时可能会产生额外的网络请求，从而消耗额外流量。  
+
+此问题由 `pdf.js` 导致，并非本项目的功能或配置问题。  
+
+在相关讨论中，`pdf.js` 贡献者最初认为是错误配置导致（尽管我们直接使用了官方 demo），随后又认为是 **bad PDF** 所致。然而，我已测试多个电子书 PDF，均存在该问题。因此，`pdf.js` 可能在处理一些不规范的电子书类 PDF 时存在某些兼容性问题，贡献者说：  
+
+> *"All /Page-objects are placed directly at the top-level of the /Pages-tree and trying to improve this one (bad case)."*  
+
+该问题与本项目无关。请您尽可能保持pdf.js的 default_chunk_size为较小的值，如65536 (初始值)，这样即使多发无用请求，最多只会多消耗 5MB 左右的流量。
+若改为65565＊16，消耗流量会更多。
+
+[原始讨论](https://github.com/mozilla/pdf.js/discussions/19679#discussioncomment-12528494)。  
+
+---
+
+这样保留了原始的英文描述，同时更流畅地融入上下文，使读者能够理解其含义。
