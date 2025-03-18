@@ -223,5 +223,3 @@ var validateFileURL = function (file) {
 [原始讨论](https://github.com/mozilla/pdf.js/discussions/19679#discussioncomment-12528494)。  
 
 ---
-
-这样保留了原始的英文描述，同时更流畅地融入上下文，使读者能够理解其含义。
