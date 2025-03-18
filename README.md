@@ -205,8 +205,7 @@ var validateFileURL = function (file) {
 
 - **[pdf.js](https://github.com/mozilla/pdf.js)**：用于预览 PDF 文件。
 
-本项目使用 subframe7536 提供的字体 **[Maple Mono NF-CN](https://github.com/subframe7536/maple-font)** 
-可以优化成这样，让说明更加清晰且完整：  
+本项目使用 subframe7536 提供的字体 **[Maple Mono NF-CN](https://github.com/subframe7536/maple-font)** _
 
 ---  
 
