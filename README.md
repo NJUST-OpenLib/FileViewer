@@ -207,19 +207,42 @@ var validateFileURL = function (file) {
 
 本项目使用 subframe7536 提供的字体 **[Maple Mono NF-CN](https://github.com/subframe7536/maple-font)** _
 
----  
+---  这是优化后的完整版本，结合了你的新内容，使整体表达更严谨、清晰：  
 
-**注意：** 本项目在预览 PDF 文件时可能会产生额外的网络请求，从而消耗额外流量。  
 
-此问题由 `pdf.js` 导致，并非本项目的功能或配置问题。  
+### **注意**  
+本项目在预览 PDF 文件时可能会产生额外的网络请求，进而增加流量消耗。  
 
-在相关讨论中，`pdf.js` 贡献者最初认为是错误配置导致（尽管我们直接使用了官方 demo），随后又认为是 **bad PDF** 所致。然而，我已测试多个电子书 PDF，均存在该问题。因此，`pdf.js` 可能在处理一些不规范的电子书类 PDF 时存在某些兼容性问题，贡献者说：  
+#### **pdf.js 的请求行为**  
+在加载 PDF 文件时，pdf.js 首先需要读取 **文件尾部** 以解析 **交叉引用表（Cross-Reference Table, XRef）**，从而定位 **根对象（Root Object）** 并构建文档结构。随后，它会遍历 `/Pages` 树，以获取所有页面的元数据（如页面尺寸、资源引用等）。  
+
+如果 **所有 `/Page` 对象均直接位于 `/Pages` 树的顶层**，解析器需要一次性读取这些对象的位置信息。而由于 **交叉引用表通常存储在文件末尾**，pdf.js 可能需要下载整个文件，才能完成元数据解析。这种情况下，即便启用了 **分片请求（Range Request）**，仍可能导致整份 PDF 被完整下载，从而增加流量消耗。  
+
+
+在解析出足够的元数据后，pdf.js 会根据 `disableRange` 和 `disableStream` 这两个参数决定是否继续使用 **分片请求** 或 **流式传输**：  
+- 若 `disableRange` 和 `disableStream` 允许分片请求，pdf.js 会尝试读取服务器的头部信息 `Access-Control-Expose-Headers` ，以检查 `Accept-Ranges` 和 `Content-Range` 是否可用。  
+- 然而，由于浏览器默认仅允许 JavaScript 访问部分响应头，而 `Accept-Ranges: bytes` 头通常不会被暴露，因此 pdf.js 在尝试读取 `Accept-Ranges` 时可能会得到 `null`，从而误判服务器不支持分片请求，导致整个文件被完整下载，而非按需加载。  
+
+若服务器正确暴露了 `Accept-Ranges` 头部，则 pdf.js 会发送 **Range 请求**，其中每个请求的大小由 `default_chunk_size` 参数控制。此外，`disableAutoFetch` 参数决定是否自动获取所有分片。  
+
+#### **导致额外流量消耗的情况**  
+pdf.js 的 **分片加载机制** 在某些情况下可能导致额外的流量消耗。例如：  
+- **所有 `/Page` 对象均直接位于 `/Pages` 树的顶层** 时，pdf.js 可能在获取到足够的元数据时，整个 PDF 文件已几乎下载完毕。
+
+- 这表现为pdf.js 的Rangerequest 不仅不起作用，还会出现额外的资源消耗。由于首次请求的体积为文件体积，且没带Range参数，用户容易误以为是PDF.JS的参数设置错误，或程序如此。
+
+- 此时，即便 `disableRange` 允许分片请求，pdf.js 仍会继续发送 Range 请求，而服务器也会正常响应，导致重复下载部分数据，从而产生不必要的流量消耗。
+
+  是否可以加入判断，当首次请求返回的数据量等于文件大小，禁止后续range请求？但这或许会对blob形式的数据产生影响？这不是本项目需要关注的点，放在这里用以纪念我查了一晚上bug消耗的时间
+
+在相关讨论中，pdf.js 贡献者最初认为该问题是由于错误的配置（尽管我们使用的是官方 Demo），随后又认为可能是 **“格式不规范的 PDF 文件”** 导致的。然而，我对多个电子书 PDF 进行了测试，均存在类似问题。因此，这可能是 pdf.js 在处理某些 **扫描类 PDF** 时的兼容性问题，正如贡献者所述：  
 
 > *"All /Page-objects are placed directly at the top-level of the /Pages-tree and trying to improve this one (bad case)."*  
 
-该问题与本项目无关。请您尽可能保持pdf.js的 default_chunk_size为较小的值，如65536 (初始值)，这样即使多发无用请求，最多只会多消耗 5MB 左右的流量。
-若改为65565＊16，消耗流量会更多。
+究竟是 pdf.js 的问题，还是 PDF 文件本身的问题，目前尚无定论，甚至可能二者都不是。然而可以确定的是，该问题**与本项目无关**。  
 
-[原始讨论](https://github.com/mozilla/pdf.js/discussions/19679#discussioncomment-12528494)。  
+#### **建议**  
+为尽量减少无用流量消耗，建议制作标准的PDF。同时保持 pdf.js（或 PDF.mjs）的 `default_chunk_size` 值较小，例如 `65536`（默认值）。即便发生额外请求，最多也只会增加 **约 5MB** 的流量消耗。  
+如果 `default_chunk_size` 被增大到 `65536 × 16`，则流量消耗会更高。  
 
----
+[原始讨论](https://github.com/mozilla/pdf.js/discussions/19679#discussioncomment-12528494)  
