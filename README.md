@@ -24,6 +24,12 @@
 http://example.com/autoviewer.html?url={文件链接}
 ```
 
+例如
+
+```plaintext
+https://njust-openlib.github.io/FileViewer/autoview.html?url=https://raw.githubusercontent.com/NJUST-OpenLib/FileViewer/refs/heads/main/autoview.html
+```
+
 将 `{文件链接}` 替换为实际文件的 URL，即可在浏览器中打开进行预览。
 
 ### 关于 PDF.js 的使用
