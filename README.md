@@ -207,7 +207,7 @@ var validateFileURL = function (file) {
 
 本项目使用 subframe7536 提供的字体 **[Maple Mono NF-CN](https://github.com/subframe7536/maple-font)** _
 
----  这是优化后的完整版本，结合了你的新内容，使整体表达更严谨、清晰：  
+
 
 
 ### **注意**  
